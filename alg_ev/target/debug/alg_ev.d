@@ -1,1 +1,0 @@
-/home/amyr/Documentos/Estudos/Computação\ Evolucionária/Trabalhos/alg_ev/target/debug/alg_ev: /home/amyr/Documentos/Estudos/Computação\ Evolucionária/Trabalhos/alg_ev/src/io.rs /home/amyr/Documentos/Estudos/Computação\ Evolucionária/Trabalhos/alg_ev/src/main.rs
