@@ -38,10 +38,20 @@ impl Config {
 mod config_tests {
     use std::io::Cursor;
     use super::*;
+
+    fn assert_json_generates_expected_config(json: &str, expected_config: Config) {
+        let config_reader = Cursor::new(json);
+        let config = Config::from_reader(config_reader)
+            .inspect_err(|e| {
+                println!("Error: {:?}", e);
+            })
+            .unwrap();
+        assert_eq!(config, expected_config);
+    }
     
     #[test]
     fn test_create_config_from_reader() -> () {
-        let config_str = r#"{
+        let config_json = r#"{
             "codification": {
                 "integer": { 
                     "dim": 12,
@@ -52,13 +62,6 @@ mod config_tests {
             "runs": 10,
             "generations": 200
         }"#;
-        let config_reader = Cursor::new(config_str);
-        let config = Config::from_reader(config_reader)
-            .inspect_err(|e| {
-                println!("Error: {:?}", e);
-            })
-            .unwrap();
-
         let expected_config = Config {
             codification: Codification::Integer {
                 dim: 12,
@@ -68,7 +71,6 @@ mod config_tests {
             runs: 10,
             generations: 200, 
         };
-
-        assert_eq!(config, expected_config);
+        assert_json_generates_expected_config(config_json, expected_config);
     }
 }
