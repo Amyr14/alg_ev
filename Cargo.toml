@@ -1,7 +1,11 @@
 [package]
-name = "alg_ev"
+name = "gen_alg"
 version = "0.1.0"
 edition = "2024"
+
+[lib]
+name = "gen_alg"
+path = "src/lib.rs"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
