@@ -1,2 +1,3 @@
-mod config;
-mod pop_gen;
+pub mod alg;
+pub mod population;
+pub mod runtime;

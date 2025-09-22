@@ -1,32 +1,29 @@
-use serde::{Deserialize};
+use serde::Deserialize;
 use serde_json::{error::Category, Deserializer};
 use std::{io::Read};
 
-#[derive(Deserialize, Debug, PartialEq)]
-pub enum Codification {
-    #[serde(rename="binary")]
+#[derive(Debug, PartialEq, Deserialize)]
+#[serde(tag="type")]
+pub enum EncodingDTO {
     Binary {dim: usize},
-    #[serde(rename="integer_permutation")]
     IntegerPermutation {dim: usize},
-    #[serde(rename="integer")]
     Integer {dim: usize, bounds: (usize, usize)},
-    #[serde(rename="real")]
     Real {dim: usize, bounds: (f64, f64)},
 }
 
 #[derive(Deserialize, Debug, PartialEq)]
-pub struct Config {
-    pub codification: Codification,
+pub struct ConfigDTO {
+    pub encoding: EncodingDTO,
     pub pop_size: usize,
     pub runs: usize,
     pub generations: usize,
 }
 
 //@TODO: tratar melhor esse category, talvez fazer um erro customizado
-impl Config {
-    pub fn from_reader<R: Read>(config_reader: R) -> Result<Config, Category> {
-        let mut de = Deserializer::from_reader(config_reader);
-        let config = Config::deserialize(&mut de);
+impl ConfigDTO {
+    pub fn from_reader<R: Read>(config_reader: R) -> Result<ConfigDTO, Category> {
+        let mut de: Deserializer<serde_json::de::IoRead<R>> = Deserializer::from_reader(config_reader);
+        let config = ConfigDTO::deserialize(&mut de);
         match config {
             Err(e) => Err(e.classify()),
             Ok(config) => Ok(config)
@@ -39,9 +36,9 @@ mod config_tests {
     use std::io::Cursor;
     use super::*;
 
-    fn assert_json_generates_expected_config(json: &str, expected_config: Config) {
+    fn assert_json_generates_expected_config(json: &str, expected_config: ConfigDTO) {
         let config_reader = Cursor::new(json);
-        let config = Config::from_reader(config_reader)
+        let config = ConfigDTO::from_reader(config_reader)
             .inspect_err(|e| {
                 println!("Error: {:?}", e);
             })
@@ -52,18 +49,17 @@ mod config_tests {
     #[test]
     fn test_create_config_from_reader() -> () {
         let config_json = r#"{
-            "codification": {
-                "integer": { 
-                    "dim": 12,
-                    "bounds": [0, 10]
-                }
+            "encoding": {
+                "type": "Integer",
+                "dim": 12,
+                "bounds": [0, 10]
             },
             "pop_size": 30,
             "runs": 10,
             "generations": 200
         }"#;
-        let expected_config = Config {
-            codification: Codification::Integer {
+        let expected_config = ConfigDTO {
+            encoding: EncodingDTO::Integer {
                 dim: 12,
                 bounds: (0, 10)
             },
